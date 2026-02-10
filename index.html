@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Promises To You</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Quicksand:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8a4b58; /* Deep Rose */
+            --accent: #d4a5a5; /* Soft Pink */
+            --bg-gradient: linear-gradient(135deg, #fff0f3 0%, #ffe6ea 100%);
+            --glass: rgba(255, 255, 255, 0.7);
+            --shadow: 0 8px 32px 0 rgba(138, 75, 88, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--primary);
+            font-family: 'Quicksand', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Canvas for Sakura Animation */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Typography */
+        h1, h2 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Main Container */
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding-bottom: 100px;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            opacity: 0;
+            animation: fadeIn 2.5s ease forwards;
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            line-height: 1;
+            margin-bottom: 20px;
+            background: -webkit-linear-gradient(45deg, #8a4b58, #c98c99);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--primary);
+        }
+
+        .scroll-down {
+            margin-top: 50px;
+            animation: float 3s ease-in-out infinite;
+            font-size: 2rem;
+            opacity: 0.5;
+        }
+
+        /* Quote Cards */
+        .quote-section {
+            min-height: 80vh; /* Makes scroll lengthy */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            padding: 4rem;
+            border-radius: 4px; /* Editorial look */
+            box-shadow: var(--shadow);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.95) translateY(30px);
+            transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+        }
+
+        /* Floral decorations on corners of cards */
+        .card::before, .card::after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--primary);
+            transition: 0.5s;
+            opacity: 0.3;
+        }
+
+        .card::before { top: 20px; left: 20px; border-right: 0; border-bottom: 0; }
+        .card::after { bottom: 20px; right: 20px; border-left: 0; border-top: 0; }
+
+        .card:hover::before, .card:hover::after {
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+        }
+
+        .card.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .card-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(138, 75, 88, 0.1);
+            z-index: -1;
+        }
+
+        .quote-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            line-height: 1.5;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .quote-context {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #b57b85;
+            font-weight: bold;
+        }
+
+        /* Footer */
+        .footer-msg {
+            height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .heart-btn {
+            margin-top: 30px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 1.2rem;
+            font-family: 'Quicksand', sans-serif;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(138, 75, 88, 0.3);
+        }
+
+        .heart-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(138, 75, 88, 0.5);
+            background: #6d3b45;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+            100% { transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 3.5rem; }
+            .card { padding: 2rem; }
+            .quote-text { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="sakura"></canvas>
+
+    <div class="wrapper">
+        
+        <section class="hero">
+            <p>Happy Promise Day</p>
+            <h1>My Vows <br> To You</h1>
+            <div class="scroll-down">♡</div>
+        </section>
+
+        <section class="quote-section">
+            <div class="card">
+                <div class="card-number">01</div>
+                <p class="quote-text">"Your beauty is not just in your reflection, but in the light you bring to my darkest days. I promise to always cherish the masterpiece that you are."</p>
+                <p class="quote-context">The Promise of Admiration</p>
+            </div>
+        </section>
+
+        <section class="quote-section">
+            <div class="card">
+                <div class="card-number">02</div>
+                <p class="quote-text">"I am on your side. Even when we disagree, even when the world is loud, remember this: I am always, unequivocally, on your team."</p>
+                <p class="quote-context">The Promise of Loyalty</p>
+            </div>
+        </section>
+
+        <section class="quote-section">
+            <div class="card">
+                <div class="card-number">03</div>
+                <p class="quote-text">"I promise to love you not just for who you are today, but for who you are becoming. I will be the soil in which your dreams can grow."</p>
+                <p class="quote-context">The Promise of Growth</p>
+            </div>
+        </section>
+
+        <section class="quote-section">
+            <div class="card">
+                <div class="card-number">04</div>
+                <p class="quote-text">"When you feel like you are too much for the world to handle, I promise to be the place where you can rest your head and just be."</p>
+                <p class="quote-context">The Promise of Peace</p>
+            </div>
+        </section>
+
+        <section class="quote-section">
+            <div class="card">
+                <div class="card-number">05</div>
+                <p class="quote-text">"I promise to listen. Not to fix, not to judge, but to understand the melody of your heart even when it sings a sad song."</p>
+                <p class="quote-context">The Promise of Patience</p>
+            </div>
+        </section>
+
+        <section class="quote-section">
+            <div class="card">
+                <div class="card-number">06</div>
+                <p class="quote-text">"You are the most beautiful chapter in my life's book. I promise to write every remaining page with you by my side."</p>
+                <p class="quote-context">The Promise of Future</p>
+            </div>
+        </section>
+
+        <section class="quote-section">
+            <div class="card">
+                <div class="card-number">07</div>
+                <p class="quote-text">"I promise to hold your hand when you are brave, and hold you even tighter when you are afraid."</p>
+                <p class="quote-context">The Promise of Support</p>
+            </div>
+        </section>
+
+        <section class="quote-section">
+            <div class="card">
+                <div class="card-number">08</div>
+                <p class="quote-text">"I promise to never let a day go by without letting you know that you are loved, wanted, and appreciated."</p>
+                <p class="quote-context">The Promise of Affirmation</p>
+            </div>
+        </section>
+
+        <section class="quote-section">
+            <div class="card">
+                <div class="card-number">09</div>
+                <p class="quote-text">"Through every season, through every storm, and through every sunrise, I promise to be your constant."</p>
+                <p class="quote-context">The Promise of Consistency</p>
+            </div>
+        </section>
+
+        <section class="quote-section">
+            <div class="card">
+                <div class="card-number">10</div>
+                <p class="quote-text">"My heart is a lock, and your love is the only key. I promise to keep it safe for you, forever."</p>
+                <p class="quote-context">The Promise of Devotion</p>
+            </div>
+        </section>
+
+        <section class="footer-msg">
+            <h2 style="font-size: 3rem; margin-bottom: 20px;">I Promise.</h2>
+            <p style="font-size: 1.2rem;">Today, Tomorrow, Always.</p>
+            <button class="heart-btn" onclick="celebrate()">Accept My Promise</button>
+        </section>
+
+    </div>
+
+    <script>
+        // SAKURA ANIMATION SCRIPT
+        const canvas = document.getElementById('sakura');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const petals = [];
+        const petalCount = 60;
+
+        class Petal {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height - canvas.height;
+                this.size = Math.random() * 15 + 10;
+                this.speedY = Math.random() * 1 + 0.5;
+                this.speedX = Math.random() * 2 - 1;
+                this.angle = Math.random() * 360;
+                this.spin = Math.random() * 2 - 1;
+                this.color = `rgba(255, ${Math.random() * 50 + 200}, ${Math.random() * 50 + 200}, ${Math.random() * 0.4 + 0.3})`;
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += Math.sin(this.angle) * 0.5; // Swaying motion
+                this.angle += 0.01;
+                this.rotation += this.spin;
+
+                if (this.y > canvas.height) {
+                    this.y = -20;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                // Draw petal shape
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(10, -10, 20, 0, 0, 20);
+                ctx.bezierCurveTo(-20, 0, -10, -10, 0, 0);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function initPetals() {
+            for (let i = 0; i < petalCount; i++) {
+                petals.push(new Petal());
+            }
+        }
+
+        function animatePetals() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            petals.forEach(petal => {
+                petal.update();
+                petal.draw();
+            });
+            requestAnimationFrame(animatePetals);
+        }
+
+        initPetals();
+        animatePetals();
+
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // SCROLL OBSERVER (Animations on Scroll)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('.card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // BUTTON CLICK EFFECT
+        function celebrate() {
+            const btn = document.querySelector('.heart-btn');
+            btn.innerHTML = "I Love You ❤️";
+            btn.style.background = "#fff";
+            btn.style.color = "#8a4b58";
+            alert("Promise sealed forever!");
+        }
+    </script>
+</body>
+</html>
+
